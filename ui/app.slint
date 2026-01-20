@@ -1,0 +1,184 @@
+import { Button, VerticalBox, HorizontalBox, LineEdit } from "std-widgets.slint";
+
+export component AppWindow inherits Window {
+    title: "Pomodoro Focus Pro";
+    width: 420px;
+    height: 720px;
+    background: @linear-gradient(180deg, #1a1b26 0%, #16161e 100%);
+
+    in-out property <string> timer-text: "25:00";
+    in-out property <string> mode-text: "FOCUS PHASE";
+    in-out property <color> mode-color: #ff5f5f; 
+    in-out property <bool> is-running: false;
+    in-out property <float> progress: 1.0;
+    in-out property <int> sessions-count: 0;
+    in-out property <string> alarm-name: "Default Bell";
+
+    in-out property <string> work-setting: "25";
+    in-out property <string> short-break-setting: "5";
+    in-out property <string> long-break-setting: "15";
+
+    callback toggle-timer();
+    callback reset-timer();
+    callback settings-changed();
+    callback select-file();
+
+    VerticalBox {
+        padding: 25px;
+        spacing: 20px;
+
+        HorizontalBox {
+            alignment: center;
+            Text {
+                text: "TIMER";
+                font-size: 20px;
+                font-weight: 300;
+                color: #cfc9c2;
+                letter-spacing: 5px;
+            }
+        }
+
+        Rectangle {
+            background: #24283b;
+            border-radius: 24px;
+            border-width: 1px;
+            border-color: mode-color.with-alpha(0.3);
+            drop-shadow-blur: 15px;
+            drop-shadow-color: #00000044;
+
+            VerticalBox {
+                padding: 30px;
+                spacing: 15px;
+                alignment: center;
+
+                Text {
+                    text: root.mode-text;
+                    color: root.mode-color;
+                    font-size: 14px;
+                    font-weight: 800;
+                    letter-spacing: 2px;
+                }
+
+                Text {
+                    text: root.timer-text;
+                    color: #c0caf5;
+                    font-size: 90px;
+                    font-weight: 900;
+                }
+
+                Rectangle {
+                    height: 8px;
+                    background: #1a1b26;
+                    border-radius: 4px;
+                    Rectangle {
+                        x: 0;
+                        width: parent.width * root.progress;
+                        height: parent.height;
+                        background: root.mode-color;
+                        border-radius: 4px;
+                        animate width { duration: 1000ms; easing: ease-in-out; }
+                    }
+                }
+                
+                Text {
+                    text: "SESSIONS: " + root.sessions-count;
+                    color: #565f89;
+                    font-size: 12px;
+                    font-weight: 600;
+                }
+            }
+        }
+
+        HorizontalBox {
+            alignment: center;
+            spacing: 20px;
+            
+            Rectangle {
+                width: 160px;
+                height: 50px;
+                background: root.is-running ? #f7768e22 : #9ece6a22;
+                border-radius: 12px;
+                border-width: 2px;
+                border-color: root.is-running ? #f7768e : #9ece6a;
+                
+                TouchArea {
+                    clicked => { root.toggle-timer() }
+                    Text {
+                        text: root.is-running ? "PAUSE" : "START";
+                        color: root.is-running ? #f7768e : #9ece6a;
+                        font-weight: 800;
+                    }
+                }
+            }
+
+            Rectangle {
+                width: 50px;
+                height: 50px;
+                background: #41486822;
+                border-radius: 12px;
+                border-width: 1px;
+                border-color: #414868;
+
+                TouchArea {
+                    clicked => { root.reset-timer() }
+                    Text {
+                        text: "↺";
+                        color: #cfc9c2;
+                        font-size: 20px;
+                    }
+                }
+            }
+        }
+
+        Rectangle {
+            background: #24283b88;
+            border-radius: 20px;
+            
+            VerticalBox {
+                padding: 15px;
+                spacing: 12px;
+
+                Text { 
+                    text: "SETTINGS"; 
+                    color: #565f89; 
+                    font-size: 10px; 
+                    font-weight: 800; 
+                }
+
+                HorizontalBox {
+                    spacing: 12px;
+                    VerticalBox {
+                        spacing: 4px;
+                        Text { text: "Work"; color: #bb9af7; font-size: 9px; }
+                        LineEdit { text: root.work-setting; edited => { root.work-setting = self.text; root.settings-changed(); } }
+                    }
+                    VerticalBox {
+                        spacing: 4px;
+                        Text { text: "Break"; color: #9ece6a; font-size: 9px; }
+                        LineEdit { text: root.short-break-setting; edited => { root.short-break-setting = self.text; root.settings-changed(); } }
+                    }
+                    VerticalBox {
+                        spacing: 4px;
+                        Text { text: "Long"; color: #7dcfff; font-size: 9px; }
+                        LineEdit { text: root.long-break-setting; edited => { root.long-break-setting = self.text; root.settings-changed(); } }
+                    }
+                }
+
+                HorizontalBox {
+                    alignment: space-between;
+                    Text { 
+                        text: "Alarm: " + root.alarm_name; 
+                        color: #9aa5ce; 
+                        font-size: 10px; 
+                        vertical-alignment: center;
+                        overflow: elide;
+                    }
+                    Button { 
+                        text: "Pick"; 
+                        clicked => { root.select-file() } 
+                    }
+                }
+            }
+        }
+    }
+}
